@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TechTreeMVCWebApplication.Data;
 using TechTreeMVCWebApplication.Entities;
+using TechTreeMVCWebApplication.Extensions;
 
 namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
 {
@@ -24,6 +25,10 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int categoryId)
         {
             List<CategoryItem> list = await (from catItem in _context.CategoryItem
+                                             join contentItem in _context.Content
+                                             on catItem.Id equals contentItem.CategoryItem.Id
+                                             into gj
+                                             from subContent in gj.DefaultIfEmpty()
                                             where catItem.CategoryId == categoryId
                                             select new CategoryItem
                                             {
@@ -32,8 +37,11 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
                                                 Description = catItem.Description,
                                                 DateTimeItemReleased = catItem.DateTimeItemReleased,
                                                 MediaTypeId = catItem.MediaTypeId,
-                                                CategoryId = categoryId
+                                                CategoryId = categoryId,
+                                                ContentId = (subContent != null) ? subContent.Id : 0
                                             }).ToListAsync();
+            ViewBag.CategoryId = categoryId;
+
             return View(list);
         }
 
@@ -56,9 +64,17 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
         }
 
         // GET: Admin/CategoryItem/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int categoryId)
         {
-            return View();
+            List<MediaType> mediaTypes = await _context.MediaType.ToListAsync();
+
+            CategoryItem categoryItem = new CategoryItem
+            {
+                CategoryId = categoryId,
+                //MediaTypes = mediaTypes.ConvertToSelectList(0)
+            };
+
+            return View(categoryItem);
         }
 
         // POST: Admin/CategoryItem/Create
@@ -74,6 +90,11 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            List<MediaType> mediaTypes = await _context.MediaType.ToListAsync();
+            //categoryItem.MediaTypeId = mediaTypes.ConvertToSelectList(categoryItem.MediaTypeId);
+
+
             return View(categoryItem);
         }
 
@@ -85,11 +106,15 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            List<MediaType> mediaTypes = await _context.MediaType.ToListAsync();
+
             var categoryItem = await _context.CategoryItem.FindAsync(id);
             if (categoryItem == null)
             {
                 return NotFound();
             }
+
+            //categoryItem.MediaTypeId = mediaTypes.ConvertToSelectList(categoryItem.MediaTypeId);
             return View(categoryItem);
         }
 
@@ -123,7 +148,7 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new {categoryId = categoryItem.CategoryId});
             }
             return View(categoryItem);
         }
@@ -154,7 +179,7 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
             var categoryItem = await _context.CategoryItem.FindAsync(id);
             _context.CategoryItem.Remove(categoryItem);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index),new {categoryId=categoryItem.CategoryId});
         }
 
         private bool CategoryItemExists(int id)
