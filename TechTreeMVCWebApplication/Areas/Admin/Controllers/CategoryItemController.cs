@@ -114,7 +114,7 @@ namespace TechTreeMVCWebApplication.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            //categoryItem.MediaTypeId = mediaTypes.ConvertToSelectList(categoryItem.MediaTypeId);
+        //categoryItem.MediaTypeId = mediaTypes.ConvertToSelectList(categoryItem.MediaTypeId);
             return View(categoryItem);
         }
 
