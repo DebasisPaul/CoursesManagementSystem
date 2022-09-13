@@ -93,3 +93,18 @@ body {
     top: 0;
     width: 100%;
 }
+
+.hero{
+    position: relative;
+}
+
+.hero-heading{
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    text-align: center;
+    width: 250px;
+    height: 150px;
+    background-color: rgba(0,0,0,0.4);
+    padding: 10px;
+}
