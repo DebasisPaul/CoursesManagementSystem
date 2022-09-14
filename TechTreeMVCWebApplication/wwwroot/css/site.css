@@ -108,3 +108,12 @@ body {
     background-color: rgba(0,0,0,0.4);
     padding: 10px;
 }
+
+.hero-heading-text{
+    color: white;
+    font-size: 1rem;
+}
+
+.hero-register-button{
+    font-size: .8rem;
+}
