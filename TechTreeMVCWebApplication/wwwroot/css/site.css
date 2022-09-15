@@ -105,8 +105,12 @@ body {
     text-align: center;
     width: 250px;
     height: 150px;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.3);
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .hero-heading-text{
@@ -116,4 +120,29 @@ body {
 
 .hero-register-button{
     font-size: .8rem;
+    cursor: pointer;
+}
+
+@media screen and (min-width: 700px) {
+    .hero-heading {
+        width: 350px;
+        height: 180px;
+    }
+
+    .hero-heading-text {
+        font-size: 2rem;
+    }
+
+    .hero-register-button {
+        font-size: 1.2rem;
+    }
+}
+
+@media screen and (min-width: 800px){
+    .hero-heading{
+        width: 600px;
+        height: 200px;
+        padding: 20px;
+    }
+
 }

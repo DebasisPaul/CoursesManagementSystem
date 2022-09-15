@@ -1,4 +1,5 @@
-﻿@model IEnumerable<TechTreeMVCWebApplication.Entities.Category>
+﻿@using TechTreeMVCWebApplication.Entities
+@model IEnumerable<Category>
 
 <!--Hero Section-->
 <div class="hero section">
@@ -7,4 +8,32 @@
         <h2 class="hero-heading-text">Learn Software Engineering at <strong>TechTree</strong></h2>
         <a id="HeroRegisterButton" class="btn btn-outline-info btn-lg text-light hero-register-button">Register</a>
     </div>
+</div>
+
+
+<!--Courses Section-->
+<div class="courses section">
+    <h3 class="section-header">Courses</h3>
+    @{
+        var count = Model.Count() / 4;
+        var catList = new List<Category>();
+    }
+    @for (int i=0; i < count; i++)
+    {
+        catList = Model.Skip(i * 4).Take(4).ToList();
+        <div class="row mt-3">
+            @foreach(Category item in catList)
+            {
+                <a href="#" class="text-dark">
+                    <div class="card">
+                        <img class="img-thumbnail" src="@item.ThumbnailImagePath" alt="@item.Title">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <p class="card-text">@item.Description</p>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
 </div>
