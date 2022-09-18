@@ -16,13 +16,14 @@ namespace TechTreeMVCWebApplication.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
 
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
+            _context = context;
             _signInManager = signInManager;
             _userManager = userManager;
         }
@@ -44,14 +45,17 @@ namespace TechTreeMVCWebApplication.Controllers
                     groupedCategoryItemsByCategoryModels = GetGroupedCategoryItemsByCategory(categoryItemDetailsModels);
 
                     categoryDetailsModel.GroupedCategoryItemsByCategoryModels = groupedCategoryItemsByCategoryModels;
+
                 }
+
             }
             else
             {
                 var categories = await GetCategoriesThatHaveContent();
-                categoryDetailsModel.Categories = categories;
-            }
 
+                categoryDetailsModel.Categories = categories;
+
+            }
 
             return View(categoryDetailsModel);
         }
@@ -70,7 +74,6 @@ namespace TechTreeMVCWebApplication.Controllers
                                                    Description = category.Description,
                                                    ThumbnailImagePath = category.ThumbnailImagePath
                                                }).Distinct().ToListAsync();
-
             return categoriesWithContent;
 
         }
@@ -109,6 +112,7 @@ namespace TechTreeMVCWebApplication.Controllers
                               MediaImagePath = mediaType.ThumbnailImagePath
                           }).ToListAsync();
         }
+
 
         public IActionResult Privacy()
         {

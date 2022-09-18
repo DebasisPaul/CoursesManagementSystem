@@ -14,7 +14,7 @@ namespace TechTreeMVCWebApplication.Data
         {
             _context = context;
         }
-        public Task UpdateUserCategoryEntityAsync(List<UserCategory> userCategoryItemsToDelete, List<UserCategory> userCategoryItemsToAdd)
+        public async Task UpdateUserCategoryEntityAsync(List<UserCategory> userCategoryItemsToDelete, List<UserCategory> userCategoryItemsToAdd)
         {
             using (var dbContextTransaction = await _context.Database.BeginTransactionAsync())
             {
@@ -38,5 +38,6 @@ namespace TechTreeMVCWebApplication.Data
                     await dbContextTransaction.DisposeAsync();
                 }
             }
+        }
     }
 }

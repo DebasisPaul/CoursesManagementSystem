@@ -117,5 +117,32 @@ namespace TechTreeMVCWebApplication.Controllers
             return PartialView("_UserRegistrationPartial", registrationModel);
 
         }
+
+        [AllowAnonymous]
+        public async Task<bool> UserNameExists(string userName)
+        {
+            bool userNameExists = await _context.Users.AnyAsync(u => u.UserName.ToUpper() == userName.ToUpper());
+
+            if (userNameExists)
+                return true;
+
+            return false;
+
+        }
+
+        private void AddErrorsToModelState(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        private async Task AddCategoryToUser(string userId, int categoryId)
+        {
+            UserCategory userCategory = new UserCategory();
+            userCategory.CategoryId = categoryId;
+            userCategory.UserId = userId;
+            _context.UserCategory.Add(userCategory);
+            await _context.SaveChangesAsync();
+        }
     }
 }

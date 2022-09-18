@@ -1,22 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace TechTreeMVCWebApplication.Entities
 {
     public class CategoryItem
     {
-
         private DateTime _releaseDate = DateTime.MinValue;
 
         public int Id { get; set; }
 
         [Required]
-        [StringLength(200,MinimumLength =2)]
+        [StringLength(200, MinimumLength = 2)]
         public string Title { get; set; }
 
         public string Description { get; set; }
@@ -28,22 +28,22 @@ namespace TechTreeMVCWebApplication.Entities
         public int MediaTypeId { get; set; }
 
         [NotMapped]
-        public virtual Collection<SelectListItem> MediaTypes { get; set; }
+        public virtual ICollection<SelectListItem> MediaTypes { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
-        [Display(Name ="Release Date")]
-        public DateTime DateTimeItemReleased 
-        { get
+        [Display(Name = "Release Date")]
+        public DateTime DateTimeItemReleased
+        {
+            get
             {
-                return(_releaseDate == DateTime.MinValue) ? DateTime.Now : _releaseDate;    
+                return (_releaseDate == DateTime.MinValue) ? DateTime.Now : _releaseDate;
             }
-
             set
             {
                 _releaseDate = value;
             }
-            
-         }
+
+        }
 
         [NotMapped]
         public int ContentId { get; set; }

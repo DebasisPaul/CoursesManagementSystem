@@ -22,6 +22,9 @@
 
         var phoneNumber = $("#UserRegistrationMdal input[name='Phone Number']").val();
 
+        var categoryId = $("#UserRegistrationMdal input[name='CategoryId']").val();
+
+
         var user = {
             __RequestAntiForgeryToken: antiForgeryToken,
             Email: email,
@@ -33,7 +36,8 @@
             Address2: address2,
             PostCode: postCode,
             PhoneNumber: phoneNumber,
-            AcceptUserAggrement: true
+            AcceptUserAggrement: true,
+            CategoryId: categoryId
         };
 
         $.ajax({

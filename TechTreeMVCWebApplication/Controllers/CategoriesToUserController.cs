@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,32 +12,46 @@ using TechTreeMVCWebApplication.Models;
 
 namespace TechTreeMVCWebApplication.Controllers
 {
+    [Authorize]
     public class CategoriesToUserController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDataFunctions _dataFunctions;
 
-        public CategoriesToUserController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public CategoriesToUserController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IDataFunctions dataFunctions)
         {
             _context = context;
             _userManager = userManager;
+            _dataFunctions = dataFunctions;
         }
-        public async IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             CategoriesToUserModel categoriesToUserModel = new CategoriesToUserModel();
+
             var userId = _userManager.GetUserAsync(User).Result?.Id;
-            categoriesToUserModel.CategoriesSelected = await GetCategoriesThatHaveContent();
+
+            categoriesToUserModel.Categories = await GetCategoriesThatHaveContent();
+
             categoriesToUserModel.CategoriesSelected = await GetCategoriesCurrentlySavedForUser(userId);
+
             categoriesToUserModel.UserId = userId;
+
             return View(categoriesToUserModel);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(string[] categoriesSelected)
         {
             var userId = _userManager.GetUserAsync(User).Result?.Id;
-            List<UserCategory> userCategoriesToDelete = await GetCategoriesToDeleteForUser(userId);
-            List<UserCategory> userCategoriesToAdd = GetCategoriesToAddForUser(categoriesSelected,userId);
 
+            List<UserCategory> userCategoriesToDelete = await GetCategoriesToDeleteForUser(userId);
+            List<UserCategory> userCategoriesToAdd = GetCategoriesToAddForUser(categoriesSelected, userId);
+
+            await _dataFunctions.UpdateUserCategoryEntityAsync(userCategoriesToDelete, userCategoriesToAdd);
+
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task<List<Category>> GetCategoriesThatHaveContent()
@@ -51,9 +67,9 @@ namespace TechTreeMVCWebApplication.Controllers
                                                        Title = category.Title,
                                                        Description = category.Description
                                                    }).Distinct().ToListAsync();
+
             return categoriesThatHaveContent;
         }
-
         private async Task<List<Category>> GetCategoriesCurrentlySavedForUser(string userId)
         {
             var categoriesCurrentlySavedForUser = await (from userCategory in _context.UserCategory
@@ -64,29 +80,32 @@ namespace TechTreeMVCWebApplication.Controllers
                                                          }).ToListAsync();
             return categoriesCurrentlySavedForUser;
         }
-
         private async Task<List<UserCategory>> GetCategoriesToDeleteForUser(string userId)
         {
             var categoriesToDelete = await (from userCat in _context.UserCategory
-                                            where UserCat.UserId == userId
+                                            where userCat.UserId == userId
                                             select new UserCategory
                                             {
                                                 Id = userCat.Id,
                                                 CategoryId = userCat.CategoryId,
                                                 UserId = userId
                                             }).ToListAsync();
+
             return categoriesToDelete;
         }
 
-        private async Task<List<Category>> GetCategoriesToAddForUser(string[] categoriesSelected, string userId )
+        private List<UserCategory> GetCategoriesToAddForUser(string[] categoriesSelected, string userId)
         {
-            var categoriesToAdd = (from categroyId in categoriesSelected
+            var categoriesToAdd = (from categoryId in categoriesSelected
                                    select new UserCategory
                                    {
                                        UserId = userId,
                                        CategoryId = int.Parse(categoryId)
-                                   }).ToListAsync();
+                                   }).ToList();
+
             return categoriesToAdd;
+
         }
+
     }
 }
